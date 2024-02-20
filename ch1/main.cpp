@@ -21,11 +21,14 @@ createad by FujiwaraNaoto
 #include FT_FREETYPE_H
 
 
-using namespace std;
 
-const string FRAME_BUFFER_PATH="/dev/fb0";
+const std::string FRAME_BUFFER_PATH="/dev/fb0";
 const int FONT_PTSCALE=64;
-const string FONT_PATH="/usr/share/fonts/truetype/ubuntu/Ubuntu-R.ttf";
+//ラズベリーパイの場合は
+/*
+const string FONT_PATH="/usr/share/fonts/truetype/piboto/Piboto-Light.ttf";
+*/
+const std::string FONT_PATH="/usr/share/fonts/truetype/ubuntu/Ubuntu-R.ttf";
 
 //enumで処理出来たら便利
 const unsigned int WHITE=0xFFFFFFFF;
@@ -45,14 +48,14 @@ struct Window{
     int height,width;
     int fb_fd;
     int target_height,target_width;
-    string font;
+    std::string font;
     double angle;
 
 
     struct fb_var_screeninfo vinfo;
 
-    vector<vector<unsigned int>> bgimage;
-    vector<vector<unsigned char>> image;
+    std::vector<std::vector<unsigned int>> bgimage;
+    std::vector<std::vector<unsigned char>> image;
 
     Window(FT_Library &library_,FT_Face &face_, FT_GlyphSlot& slot_,FT_Matrix& matrix_,FT_Vector& pen_):
     library(library_),face(face_),slot(slot_),matrix(matrix_),pen(pen_)
@@ -73,18 +76,18 @@ struct Window{
         target_height=height;
         target_width=width;
 
-        bgimage=vector<vector<unsigned int>>(height,vector<unsigned int>(width));
-        image=vector<vector<unsigned char>>(height,vector<unsigned char>(width));
+        bgimage=std::vector<std::vector<unsigned int>>(height,std::vector<unsigned int>(width));
+        image=std::vector<vector<std::unsigned char>>(height,std::vector<unsigned char>(width));
     }
 
     void init(double angle_){
         font=FONT_PATH;
         angle=angle_;
 
-        matrix.xx=(FT_Fixed)(cos(angle)*0x10000L);
-        matrix.xy=(FT_Fixed)(-sin(angle)*0x10000L);
-        matrix.yx=(FT_Fixed)(sin(angle)*0x10000L);
-        matrix.yy=(FT_Fixed)(cos(angle)*0x10000L);
+        matrix.xx=(FT_Fixed)(std::cos(angle)*0x10000L);
+        matrix.xy=(FT_Fixed)(-std::sin(angle)*0x10000L);
+        matrix.yx=(FT_Fixed)(std::sin(angle)*0x10000L);
+        matrix.yy=(FT_Fixed)(std::cos(angle)*0x10000L);
         
         FT_Init_FreeType(&library);
         FT_New_Face(library,font.c_str(),0,&face);
@@ -101,7 +104,7 @@ struct Window{
         
         for(i=y,p=0;i<y_max;i++,p++){
             for(j=x,q=0;j<x_max;j++,q++){
-                if(0<=i && i<height && 0<=j && j<width){
+                if(0<=i && i<this->height && 0<=j && j<this->width){
                     image[i][j]|=bitmap->buffer[p*bitmap->width+q];
                 }    
             }
@@ -109,7 +112,7 @@ struct Window{
 
     }
 
-    void draw_text(const string& text){
+    void draw_text(const std::string& text){
 
         for(char c:text){
             FT_Set_Transform(face,&matrix,&pen);
@@ -128,7 +131,9 @@ struct Window{
     {
         for(int iy=y;iy<height;iy++){
             for(int ix=x;ix<width;ix++){
-                bgimage[iy][ix]=color;
+                if(0<=iy && iy<this->height && 0<=ix && ix<this->width){
+                 bgimage[iy][ix]=color;
+                }
             }    
         }
     }
@@ -162,26 +167,24 @@ struct Window{
         }
 
         
-        for(int iy = 0; iy < height; iy++){
-            for(int ix = 0; ix < width; ix++){
+        for(int iy = 0; iy < this->height; iy++){
+            for(int ix = 0; ix < this->width; ix++){
                 if(image[iy][ix] == 0 ){
-                    frameBuffer[ix + iy *width]= bgimage[iy][ix];
+                    frameBuffer[ix + iy * this->width]= bgimage[iy][ix];
                 }else if(image[iy][ix]<128){
-                    frameBuffer[ix + iy * width]=fcolor + 0x00888888;
+                    frameBuffer[ix + iy * this->width]=fcolor + 0x00888888;
                 }else{
-                    frameBuffer[ix + iy * width]=fcolor;
+                    frameBuffer[ix + iy * this->width]=fcolor;
                 }
             }
         }
 
-        msync(frameBuffer,height*width*4,0);
-        
-        //memset(frameBuffer, (blue << (vinfo.blue.offset)) | (green << (vinfo.green.offset)) | (red << (vinfo.red.offset)), screensize);
-
-        munmap(frameBuffer, height*width*4);
+        msync(frameBuffer,this->height * this->width*4,0);
+       
+        munmap(frameBuffer, this->height * this->width*4);
 
         char c;
-        cin>>c;//waiting for input
+        std::cin>>c;//waiting for input
 
         // ファイルロックの解除
         fl.l_type = F_UNLCK;
@@ -204,7 +207,9 @@ struct Window{
 
 
 int main() {
-    
+    using std::cout;
+    using std::endl;
+    using std::string;
     FT_Library library;
     FT_Face face;
     FT_GlyphSlot slot;
