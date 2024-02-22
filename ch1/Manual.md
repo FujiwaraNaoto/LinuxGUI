@@ -21,7 +21,7 @@ $sudo make install
 
 to compile main.cpp
 ```
-$g++ main.cpp -I /usr/local/include/freetype2 -I /usr/include/libpng16 -lfreetype -lm
+$g++ main.cpp -I /usr/local/include/freetype2 -I /usr/include/libpng16 -lfreetype -lm -std=c++17
 ```
 
 to run
@@ -31,3 +31,15 @@ $ sudo ./a.out
 
 画面によっては文字の位置がずれることがあります．
 筆者が試した環境では幅800px,高さ480pxでした．
+
+
+## ラズベリーパイで実行する場合
+main.cppのフォントの設定をいじりましょう.
+```
+const std::string FONT_PATH="/usr/share/fonts/truetype/piboto/Piboto-Light.ttf";
+
+//const std::string FONT_PATH="/usr/share/fonts/truetype/ubuntu/Ubuntu-R.ttf";
+```
+Ctrl+Alt+F3でGUIからCUI
+Ctrl+Alt+F7でCUIからGUIに設定できます．
+

@@ -26,7 +26,7 @@ const std::string FRAME_BUFFER_PATH="/dev/fb0";
 const int FONT_PTSCALE=64;
 //ラズベリーパイの場合は
 /*
-const string FONT_PATH="/usr/share/fonts/truetype/piboto/Piboto-Light.ttf";
+const std::string FONT_PATH="/usr/share/fonts/truetype/piboto/Piboto-Light.ttf";
 */
 const std::string FONT_PATH="/usr/share/fonts/truetype/ubuntu/Ubuntu-R.ttf";
 
@@ -77,7 +77,7 @@ struct Window{
         target_width=width;
 
         bgimage=std::vector<std::vector<unsigned int>>(height,std::vector<unsigned int>(width));
-        image=std::vector<vector<std::unsigned char>>(height,std::vector<unsigned char>(width));
+        image=std::vector<std::vector<unsigned char>>(height,std::vector<unsigned char>(width));
     }
 
     void init(double angle_){
